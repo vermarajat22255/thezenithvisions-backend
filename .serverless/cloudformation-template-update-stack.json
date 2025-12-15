@@ -158,6 +158,15 @@
                     "ses:SendRawEmail"
                   ],
                   "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:PutObject",
+                    "s3:GetObject",
+                    "s3:DeleteObject"
+                  ],
+                  "Resource": "arn:aws:s3:::thezenithvisions-backend-dev-resumes/*"
                 }
               ]
             }
@@ -186,7 +195,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/thezenithvisions-backend/dev/1765757790398-2025-12-15T00:16:30.398Z/thezenithvisions-backend.zip"
+          "S3Key": "serverless/thezenithvisions-backend/dev/1765766227240-2025-12-15T02:37:07.240Z/thezenithvisions-backend.zip"
         },
         "Handler": "src/handlers/contact.submit",
         "Runtime": "nodejs18.x",
@@ -196,9 +205,10 @@
         "Environment": {
           "Variables": {
             "DYNAMODB_TABLE": "thezenithvisions-backend-dev-submissions",
+            "RESUME_BUCKET": "thezenithvisions-backend-dev-resumes",
             "SES_REGION": "us-east-1",
-            "FROM_EMAIL": "info@thezenithvisions.com",
-            "TO_EMAIL": "info@thezenithvisions.com"
+            "FROM_EMAIL": "no-reply@thezenithvisions.com",
+            "TO_EMAIL": "no-reply@thezenithvisions.com"
           }
         },
         "Role": {
@@ -219,7 +229,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/thezenithvisions-backend/dev/1765757790398-2025-12-15T00:16:30.398Z/thezenithvisions-backend.zip"
+          "S3Key": "serverless/thezenithvisions-backend/dev/1765766227240-2025-12-15T02:37:07.240Z/thezenithvisions-backend.zip"
         },
         "Handler": "src/handlers/getSubmissions.list",
         "Runtime": "nodejs18.x",
@@ -229,9 +239,10 @@
         "Environment": {
           "Variables": {
             "DYNAMODB_TABLE": "thezenithvisions-backend-dev-submissions",
+            "RESUME_BUCKET": "thezenithvisions-backend-dev-resumes",
             "SES_REGION": "us-east-1",
-            "FROM_EMAIL": "info@thezenithvisions.com",
-            "TO_EMAIL": "info@thezenithvisions.com"
+            "FROM_EMAIL": "no-reply@thezenithvisions.com",
+            "TO_EMAIL": "no-reply@thezenithvisions.com"
           }
         },
         "Role": {
@@ -245,24 +256,24 @@
         "GetSubmissionsLogGroup"
       ]
     },
-    "SubmitContactLambdaVersion91RWAFAgBQSPmghPgChu3c3vxXCD9bFoTu64v23j5Qo": {
+    "SubmitContactLambdaVersionWwmzqYLj859ck9t93S18fsPcWJlpJresvivZ0KIfjSI": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "SubmitContactLambdaFunction"
         },
-        "CodeSha256": "UcbATLan37QHcPIK001wmy/ADZK7zeEX/5nw6RfG8cg="
+        "CodeSha256": "aAuHN2FuM7ULbydyaMHPCxPXVVoPUcNHQXjuoWxkVXk="
       }
     },
-    "GetSubmissionsLambdaVersionO8AXUjBb4hvHVoHad0GxgEOMbVPqubYoJz2OCn9KCE": {
+    "GetSubmissionsLambdaVersionGMMcccAkwcLrgH15p9tqZB8IYxYdIkegyalrTyfaY": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetSubmissionsLambdaFunction"
         },
-        "CodeSha256": "UcbATLan37QHcPIK001wmy/ADZK7zeEX/5nw6RfG8cg="
+        "CodeSha256": "aAuHN2FuM7ULbydyaMHPCxPXVVoPUcNHQXjuoWxkVXk="
       }
     },
     "ApiGatewayRestApi": {
@@ -489,7 +500,7 @@
         "GetSubmissionsLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1765757761573": {
+    "ApiGatewayDeployment1765766209111": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -614,6 +625,44 @@
           }
         ]
       }
+    },
+    "ResumeBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "thezenithvisions-backend-dev-resumes",
+        "CorsConfiguration": {
+          "CorsRules": [
+            {
+              "AllowedOrigins": [
+                "*"
+              ],
+              "AllowedMethods": [
+                "GET",
+                "PUT",
+                "POST"
+              ],
+              "AllowedHeaders": [
+                "*"
+              ]
+            }
+          ]
+        },
+        "LifecycleConfiguration": {
+          "Rules": [
+            {
+              "Id": "DeleteOldResumes",
+              "Status": "Enabled",
+              "ExpirationInDays": 90
+            }
+          ]
+        },
+        "PublicAccessBlockConfiguration": {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true
+        }
+      }
     }
   },
   "Outputs": {
@@ -628,7 +677,7 @@
     "SubmitContactLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "SubmitContactLambdaVersion91RWAFAgBQSPmghPgChu3c3vxXCD9bFoTu64v23j5Qo"
+        "Ref": "SubmitContactLambdaVersionWwmzqYLj859ck9t93S18fsPcWJlpJresvivZ0KIfjSI"
       },
       "Export": {
         "Name": "sls-thezenithvisions-backend-dev-SubmitContactLambdaFunctionQualifiedArn"
@@ -637,7 +686,7 @@
     "GetSubmissionsLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetSubmissionsLambdaVersionO8AXUjBb4hvHVoHad0GxgEOMbVPqubYoJz2OCn9KCE"
+        "Ref": "GetSubmissionsLambdaVersionGMMcccAkwcLrgH15p9tqZB8IYxYdIkegyalrTyfaY"
       },
       "Export": {
         "Name": "sls-thezenithvisions-backend-dev-GetSubmissionsLambdaFunctionQualifiedArn"

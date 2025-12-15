@@ -11,11 +11,16 @@
     "logs": "serverless logs -f submitContact -t",
     "offline": "serverless offline"
   },
-  "keywords": ["lambda", "aws", "backend"],
+  "keywords": [
+    "lambda",
+    "aws",
+    "backend"
+  ],
   "author": "TheZenithVisions",
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.511.0",
+    "@aws-sdk/client-s3": "^3.948.0",
     "@aws-sdk/client-ses": "^3.511.0",
     "@aws-sdk/lib-dynamodb": "^3.511.0",
     "@aws-sdk/util-dynamodb": "^3.511.0",

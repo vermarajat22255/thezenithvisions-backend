@@ -8,9 +8,10 @@ provider:
   
   environment:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}-submissions
+    RESUME_BUCKET: ${self:service}-${self:provider.stage}-resumes
     SES_REGION: us-east-1
-    FROM_EMAIL: info@thezenithvisions.com
-    TO_EMAIL: info@thezenithvisions.com
+    FROM_EMAIL: no-reply@thezenithvisions.com
+    TO_EMAIL: no-reply@thezenithvisions.com
   
   iam:
     role:
@@ -31,6 +32,15 @@ provider:
             - ses:SendEmail
             - ses:SendRawEmail
           Resource: "*"
+        
+        # S3 permissions for file uploads
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+          Resource:
+            - "arn:aws:s3:::${self:provider.environment.RESUME_BUCKET}/*"
 
 functions:
   # Contact form submission
@@ -42,6 +52,10 @@ functions:
           path: contact
           method: post
           cors: true
+          # Rate limiting
+          throttling:
+            maxRequestsPerSecond: 5
+            maxConcurrentRequests: 10
   
   # Get all submissions (admin only - add auth later)
   getSubmissions:
@@ -75,6 +89,32 @@ resources:
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
+    
+    # S3 Bucket for Resume Storage
+    ResumeBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.RESUME_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+              AllowedHeaders:
+                - '*'
+        LifecycleConfiguration:
+          Rules:
+            - Id: DeleteOldResumes
+              Status: Enabled
+              ExpirationInDays: 90  # Auto-delete after 90 days
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
 
 plugins:
   - serverless-offline
