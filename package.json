@@ -1,0 +1,27 @@
+{
+  "name": "thezenithvisions-backend",
+  "version": "1.0.0",
+  "description": "Backend API for TheZenithVisions",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "deploy:dev": "serverless deploy --stage dev",
+    "deploy:prod": "serverless deploy --stage prod",
+    "remove": "serverless remove",
+    "logs": "serverless logs -f submitContact -t",
+    "offline": "serverless offline"
+  },
+  "keywords": ["lambda", "aws", "backend"],
+  "author": "TheZenithVisions",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.511.0",
+    "@aws-sdk/client-ses": "^3.511.0",
+    "@aws-sdk/lib-dynamodb": "^3.511.0",
+    "@aws-sdk/util-dynamodb": "^3.511.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "serverless-offline": "^13.3.2"
+  }
+}
