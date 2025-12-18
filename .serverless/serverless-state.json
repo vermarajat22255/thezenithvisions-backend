@@ -11,10 +11,12 @@
       "stage": "dev",
       "environment": {
         "DYNAMODB_TABLE": "thezenithvisions-backend-dev-submissions",
+        "PROJECTS_TABLE": "thezenithvisions-backend-dev-projects",
         "RESUME_BUCKET": "thezenithvisions-backend-dev-resumes",
         "SES_REGION": "us-east-1",
         "FROM_EMAIL": "no-reply@thezenithvisions.com",
-        "TO_EMAIL": "no-reply@thezenithvisions.com"
+        "TO_EMAIL": "no-reply@thezenithvisions.com",
+        "ADMIN_API_KEY": "temp-dev-key-change-in-production"
       },
       "iam": {
         "role": {
@@ -27,7 +29,26 @@
                 "dynamodb:Scan",
                 "dynamodb:Query"
               ],
-              "Resource": "arn:aws:dynamodb:us-east-1:*:table/thezenithvisions-backend-dev-submissions"
+              "Resource": [
+                "arn:aws:dynamodb:us-east-1:*:table/thezenithvisions-backend-dev-submissions",
+                "arn:aws:dynamodb:us-east-1:*:table/thezenithvisions-backend-dev-submissions/index/*"
+              ]
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:PutItem",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:Query",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:BatchWriteItem"
+              ],
+              "Resource": [
+                "arn:aws:dynamodb:us-east-1:*:table/thezenithvisions-backend-dev-projects",
+                "arn:aws:dynamodb:us-east-1:*:table/thezenithvisions-backend-dev-projects/index/*"
+              ]
             },
             {
               "Effect": "Allow",
@@ -135,6 +156,12 @@
               "LogGroupName": "/aws/lambda/thezenithvisions-backend-dev-getSubmissions"
             }
           },
+          "GetProjectsLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/thezenithvisions-backend-dev-getProjects"
+            }
+          },
           "IamRoleLambdaExecution": {
             "Type": "AWS::IAM::Role",
             "Properties": {
@@ -201,6 +228,9 @@
                       },
                       {
                         "$ref": "$[\"service\"][\"provider\"][\"iam\"][\"role\"][\"statements\"][2]"
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iam\"][\"role\"][\"statements\"][3]"
                       }
                     ]
                   }
@@ -229,7 +259,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/thezenithvisions-backend/dev/1765766227240-2025-12-15T02:37:07.240Z/thezenithvisions-backend.zip"
+                "S3Key": "serverless/thezenithvisions-backend/dev/1766028505477-2025-12-18T03:28:25.477Z/thezenithvisions-backend.zip"
               },
               "Handler": "src/handlers/contact.submit",
               "Runtime": "nodejs18.x",
@@ -239,10 +269,12 @@
               "Environment": {
                 "Variables": {
                   "DYNAMODB_TABLE": "thezenithvisions-backend-dev-submissions",
+                  "PROJECTS_TABLE": "thezenithvisions-backend-dev-projects",
                   "RESUME_BUCKET": "thezenithvisions-backend-dev-resumes",
                   "SES_REGION": "us-east-1",
                   "FROM_EMAIL": "no-reply@thezenithvisions.com",
-                  "TO_EMAIL": "no-reply@thezenithvisions.com"
+                  "TO_EMAIL": "no-reply@thezenithvisions.com",
+                  "ADMIN_API_KEY": "temp-dev-key-change-in-production"
                 }
               },
               "Role": {
@@ -263,7 +295,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/thezenithvisions-backend/dev/1765766227240-2025-12-15T02:37:07.240Z/thezenithvisions-backend.zip"
+                "S3Key": "serverless/thezenithvisions-backend/dev/1766028505477-2025-12-18T03:28:25.477Z/thezenithvisions-backend.zip"
               },
               "Handler": "src/handlers/getSubmissions.list",
               "Runtime": "nodejs18.x",
@@ -273,10 +305,12 @@
               "Environment": {
                 "Variables": {
                   "DYNAMODB_TABLE": "thezenithvisions-backend-dev-submissions",
+                  "PROJECTS_TABLE": "thezenithvisions-backend-dev-projects",
                   "RESUME_BUCKET": "thezenithvisions-backend-dev-resumes",
                   "SES_REGION": "us-east-1",
                   "FROM_EMAIL": "no-reply@thezenithvisions.com",
-                  "TO_EMAIL": "no-reply@thezenithvisions.com"
+                  "TO_EMAIL": "no-reply@thezenithvisions.com",
+                  "ADMIN_API_KEY": "temp-dev-key-change-in-production"
                 }
               },
               "Role": {
@@ -290,24 +324,70 @@
               "GetSubmissionsLogGroup"
             ]
           },
-          "SubmitContactLambdaVersionWwmzqYLj859ck9t93S18fsPcWJlpJresvivZ0KIfjSI": {
+          "GetProjectsLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/thezenithvisions-backend/dev/1766028505477-2025-12-18T03:28:25.477Z/thezenithvisions-backend.zip"
+              },
+              "Handler": "src/handlers/projects.getProjects",
+              "Runtime": "nodejs18.x",
+              "FunctionName": "thezenithvisions-backend-dev-getProjects",
+              "MemorySize": 1024,
+              "Timeout": 10,
+              "Environment": {
+                "Variables": {
+                  "DYNAMODB_TABLE": "thezenithvisions-backend-dev-submissions",
+                  "PROJECTS_TABLE": "thezenithvisions-backend-dev-projects",
+                  "RESUME_BUCKET": "thezenithvisions-backend-dev-resumes",
+                  "SES_REGION": "us-east-1",
+                  "FROM_EMAIL": "no-reply@thezenithvisions.com",
+                  "TO_EMAIL": "no-reply@thezenithvisions.com",
+                  "ADMIN_API_KEY": "temp-dev-key-change-in-production"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetProjectsLogGroup"
+            ]
+          },
+          "SubmitContactLambdaVersion6Z8fZulQgnVYbKdbRHQy9z8S3Nd3YzXV22AjIhEKKc": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "SubmitContactLambdaFunction"
               },
-              "CodeSha256": "aAuHN2FuM7ULbydyaMHPCxPXVVoPUcNHQXjuoWxkVXk="
+              "CodeSha256": "OxJJlgj87zy5wgtJyfXH/gf7/Y7IFnTh009hArdXATw="
             }
           },
-          "GetSubmissionsLambdaVersionGMMcccAkwcLrgH15p9tqZB8IYxYdIkegyalrTyfaY": {
+          "GetSubmissionsLambdaVersiontfFxBBsD7EOXkaD6ofx3IVe00MJJJ2w7fvhA7Z13xA": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetSubmissionsLambdaFunction"
               },
-              "CodeSha256": "aAuHN2FuM7ULbydyaMHPCxPXVVoPUcNHQXjuoWxkVXk="
+              "CodeSha256": "OxJJlgj87zy5wgtJyfXH/gf7/Y7IFnTh009hArdXATw="
+            }
+          },
+          "GetProjectsLambdaVersionmLS5ZKK8nC7QuIsfnWXQEMm3IkkETecWNaDB9HGvs": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetProjectsLambdaFunction"
+              },
+              "CodeSha256": "OxJJlgj87zy5wgtJyfXH/gf7/Y7IFnTh009hArdXATw="
             }
           },
           "ApiGatewayRestApi": {
@@ -347,6 +427,21 @@
                 ]
               },
               "PathPart": "submissions",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceProjects": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "projects",
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -436,6 +531,51 @@
               },
               "ResourceId": {
                 "Ref": "ApiGatewayResourceSubmissions"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodProjectsOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceProjects"
               },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
@@ -534,7 +674,53 @@
               "GetSubmissionsLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1765766209111": {
+          "ApiGatewayMethodProjectsGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceProjects"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "GetProjectsLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "GetProjectsLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayDeployment1766028492098": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -545,8 +731,10 @@
             "DependsOn": [
               "ApiGatewayMethodContactOptions",
               "ApiGatewayMethodSubmissionsOptions",
+              "ApiGatewayMethodProjectsOptions",
               "ApiGatewayMethodContactPost",
-              "ApiGatewayMethodSubmissionsGet"
+              "ApiGatewayMethodSubmissionsGet",
+              "ApiGatewayMethodProjectsGet"
             ]
           },
           "SubmitContactLambdaPermissionApiGateway": {
@@ -623,6 +811,43 @@
               }
             }
           },
+          "GetProjectsLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetProjectsLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
           "SubmissionsTable": {
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
@@ -651,6 +876,51 @@
                     {
                       "AttributeName": "createdAt",
                       "KeyType": "HASH"
+                    }
+                  ],
+                  "Projection": {
+                    "ProjectionType": "ALL"
+                  }
+                }
+              ]
+            }
+          },
+          "ProjectsTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "thezenithvisions-backend-dev-projects",
+              "BillingMode": "PAY_PER_REQUEST",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "id",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "category",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "order",
+                  "AttributeType": "N"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "id",
+                  "KeyType": "HASH"
+                }
+              ],
+              "GlobalSecondaryIndexes": [
+                {
+                  "IndexName": "CategoryIndex",
+                  "KeySchema": [
+                    {
+                      "AttributeName": "category",
+                      "KeyType": "HASH"
+                    },
+                    {
+                      "AttributeName": "order",
+                      "KeyType": "RANGE"
                     }
                   ],
                   "Projection": {
@@ -711,7 +981,7 @@
           "SubmitContactLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "SubmitContactLambdaVersionWwmzqYLj859ck9t93S18fsPcWJlpJresvivZ0KIfjSI"
+              "Ref": "SubmitContactLambdaVersion6Z8fZulQgnVYbKdbRHQy9z8S3Nd3YzXV22AjIhEKKc"
             },
             "Export": {
               "Name": "sls-thezenithvisions-backend-dev-SubmitContactLambdaFunctionQualifiedArn"
@@ -720,10 +990,19 @@
           "GetSubmissionsLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetSubmissionsLambdaVersionGMMcccAkwcLrgH15p9tqZB8IYxYdIkegyalrTyfaY"
+              "Ref": "GetSubmissionsLambdaVersiontfFxBBsD7EOXkaD6ofx3IVe00MJJJ2w7fvhA7Z13xA"
             },
             "Export": {
               "Name": "sls-thezenithvisions-backend-dev-GetSubmissionsLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetProjectsLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetProjectsLambdaVersionmLS5ZKK8nC7QuIsfnWXQEMm3IkkETecWNaDB9HGvs"
+            },
+            "Export": {
+              "Name": "sls-thezenithvisions-backend-dev-GetProjectsLambdaFunctionQualifiedArn"
             }
           },
           "ServiceEndpoint": {
@@ -881,7 +1160,7 @@
         "memory": 1024,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "SubmitContactLambdaVersionWwmzqYLj859ck9t93S18fsPcWJlpJresvivZ0KIfjSI"
+        "versionLogicalId": "SubmitContactLambdaVersion6Z8fZulQgnVYbKdbRHQy9z8S3Nd3YzXV22AjIhEKKc"
       },
       "getSubmissions": {
         "handler": "src/handlers/getSubmissions.list",
@@ -917,7 +1196,43 @@
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "GetSubmissionsLambdaVersionGMMcccAkwcLrgH15p9tqZB8IYxYdIkegyalrTyfaY"
+        "versionLogicalId": "GetSubmissionsLambdaVersiontfFxBBsD7EOXkaD6ofx3IVe00MJJJ2w7fvhA7Z13xA"
+      },
+      "getProjects": {
+        "handler": "src/handlers/projects.getProjects",
+        "timeout": 10,
+        "events": [
+          {
+            "http": {
+              "path": "projects",
+              "method": "get",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "thezenithvisions-backend-dev-getProjects",
+        "package": {},
+        "memory": 1024,
+        "runtime": "nodejs18.x",
+        "vpc": {},
+        "versionLogicalId": "GetProjectsLambdaVersionmLS5ZKK8nC7QuIsfnWXQEMm3IkkETecWNaDB9HGvs"
       }
     },
     "resources": {
@@ -950,6 +1265,51 @@
                   {
                     "AttributeName": "createdAt",
                     "KeyType": "HASH"
+                  }
+                ],
+                "Projection": {
+                  "ProjectionType": "ALL"
+                }
+              }
+            ]
+          }
+        },
+        "ProjectsTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "thezenithvisions-backend-dev-projects",
+            "BillingMode": "PAY_PER_REQUEST",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "id",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "category",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "order",
+                "AttributeType": "N"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "id",
+                "KeyType": "HASH"
+              }
+            ],
+            "GlobalSecondaryIndexes": [
+              {
+                "IndexName": "CategoryIndex",
+                "KeySchema": [
+                  {
+                    "AttributeName": "category",
+                    "KeyType": "HASH"
+                  },
+                  {
+                    "AttributeName": "order",
+                    "KeyType": "RANGE"
                   }
                 ],
                 "Projection": {
@@ -1022,7 +1382,7 @@
     "artifact": "E:\\Website\\the zenith visions\\Dec 2025\\thezenithvisions-backend\\.serverless\\thezenithvisions-backend.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/thezenithvisions-backend/dev/1765766227240-2025-12-15T02:37:07.240Z",
+    "artifactDirectoryName": "serverless/thezenithvisions-backend/dev/1766028505477-2025-12-18T03:28:25.477Z",
     "artifact": "thezenithvisions-backend.zip"
   }
 }

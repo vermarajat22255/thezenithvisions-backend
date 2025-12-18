@@ -8,15 +8,17 @@ provider:
   
   environment:
     DYNAMODB_TABLE: ${self:service}-${self:provider.stage}-submissions
+    PROJECTS_TABLE: ${self:service}-${self:provider.stage}-projects
     RESUME_BUCKET: ${self:service}-${self:provider.stage}-resumes
     SES_REGION: us-east-1
     FROM_EMAIL: no-reply@thezenithvisions.com
     TO_EMAIL: no-reply@thezenithvisions.com
+    ADMIN_API_KEY: ${env:ADMIN_API_KEY, 'temp-dev-key-change-in-production'}
   
   iam:
     role:
       statements:
-        # DynamoDB permissions
+        # DynamoDB permissions for submissions table
         - Effect: Allow
           Action:
             - dynamodb:PutItem
@@ -25,6 +27,21 @@ provider:
             - dynamodb:Query
           Resource:
             - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}/index/*"
+        
+        # DynamoDB permissions for projects table
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:Scan
+            - dynamodb:Query
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchWriteItem
+          Resource:
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.PROJECTS_TABLE}"
+            - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.PROJECTS_TABLE}/index/*"
         
         # SES permissions
         - Effect: Allow
@@ -65,10 +82,20 @@ functions:
           path: submissions
           method: get
           cors: true
+  
+  # Get all projects (public)
+  getProjects:
+    handler: src/handlers/projects.getProjects
+    timeout: 10
+    events:
+      - http:
+          path: projects
+          method: get
+          cors: true
 
 resources:
   Resources:
-    # DynamoDB Table
+    # DynamoDB Table for Submissions
     SubmissionsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -87,6 +114,32 @@ resources:
             KeySchema:
               - AttributeName: createdAt
                 KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+    
+    # DynamoDB Table for Projects
+    ProjectsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.PROJECTS_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: category
+            AttributeType: S
+          - AttributeName: order
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: CategoryIndex
+            KeySchema:
+              - AttributeName: category
+                KeyType: HASH
+              - AttributeName: order
+                KeyType: RANGE
             Projection:
               ProjectionType: ALL
     
